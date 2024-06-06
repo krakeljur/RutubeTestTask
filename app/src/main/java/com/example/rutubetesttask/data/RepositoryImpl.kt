@@ -1,8 +1,8 @@
 package com.example.rutubetesttask.data
 
-import com.example.rutubetesttask.base.Container
+import com.example.rutubetesttask.common.Container
 import com.example.rutubetesttask.data.catalog.CatalogApi
-import com.example.rutubetesttask.domain.entities.CitiesGroupEntity
+import com.example.rutubetesttask.data.catalog.entity.CityDataEntity
 import com.example.rutubetesttask.domain.repositories.CitiesRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -17,24 +17,19 @@ class RepositoryImpl @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher
 ) : CitiesRepository {
 
-    private val citiesFlow: MutableStateFlow<Container<List<CitiesGroupEntity>>> =
+    private val citiesFlow: MutableStateFlow<Container<List<CityDataEntity>>> =
         MutableStateFlow(Container.Pending)
 
-    override fun getCities(): Flow<Container<List<CitiesGroupEntity>>> = citiesFlow.asStateFlow()
+    override fun getCities(): Flow<Container<List<CityDataEntity>>> = citiesFlow.asStateFlow()
 
-    override suspend fun refreshCities() {
+    override suspend fun refreshCities(query: String) {
         withContext(ioDispatcher) {
             try {
 
                 citiesFlow.value = Container.Pending
-
                 val citiesGroups = catalogApi.getCities()
-                    .filter { it.city.isNotBlank() }
+                    .filter { it.city.isNotBlank() && it.city.contains(query, ignoreCase = true) }
                     .sortedBy { it.city }
-                    .groupBy { it.city.first() }
-                    .map {(groupName, cities) ->
-                        CitiesGroupEntity(groupName, cities)
-                    }
 
                 citiesFlow.value = Container.Success(citiesGroups)
 

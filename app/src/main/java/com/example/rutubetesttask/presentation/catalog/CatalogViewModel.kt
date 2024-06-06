@@ -1,8 +1,9 @@
 package com.example.rutubetesttask.presentation.catalog
 
 import androidx.lifecycle.viewModelScope
-import com.example.rutubetesttask.base.BaseViewModel
-import com.example.rutubetesttask.base.Container
+import com.example.rutubetesttask.common.base.BaseViewModel
+import com.example.rutubetesttask.common.Container
+import com.example.rutubetesttask.data.catalog.entity.CityDataEntity
 import com.example.rutubetesttask.domain.GetCitiesUseCase
 import com.example.rutubetesttask.domain.RefreshCitiesUseCase
 import com.example.rutubetesttask.domain.entities.CitiesGroupEntity
@@ -20,7 +21,11 @@ class CatalogViewModel @Inject constructor(
     private val refreshCitiesUseCase: RefreshCitiesUseCase
 ) : BaseViewModel() {
 
-    private val citiesFlow: Flow<Container<List<CitiesGroupEntity>>> = getCitiesUseCase.getCities()
+    private val citiesFlow: Flow<Container<List<CityDataEntity>>> = getCitiesUseCase.getCities()
+
+    init {
+        refreshCities()
+    }
 
     val state: Flow<CatalogState> =
         combine(loadingFlow, errorFlow, citiesFlow) { countLoading, isError, cities ->
@@ -38,10 +43,10 @@ class CatalogViewModel @Inject constructor(
             )
         )
 
-    fun refreshCities() {
+    fun refreshCities(query: String = "") {
         viewModelScope.launch {
             withLoading {
-                refreshCitiesUseCase.refreshCities()
+                refreshCitiesUseCase.refreshCities(query)
             }
         }
     }
@@ -49,7 +54,7 @@ class CatalogViewModel @Inject constructor(
     data class CatalogState(
         val isLoading: Boolean,
         val isError: Boolean,
-        val cities: List<CitiesGroupEntity> = emptyList(),
+        val cities: List<CityDataEntity> = emptyList(),
     )
 
 }

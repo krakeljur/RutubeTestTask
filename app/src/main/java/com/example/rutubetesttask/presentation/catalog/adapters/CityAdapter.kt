@@ -1,17 +1,17 @@
 package com.example.rutubetesttask.presentation.catalog.adapters
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.rutubetesttask.databinding.ItemCityBinding
-import com.example.rutubetesttask.databinding.ItemLetterGroupBinding
 import com.example.rutubetesttask.data.catalog.entity.CityDataEntity
+import com.example.rutubetesttask.databinding.ItemCityBinding
 
 
 class CityDiffCallBack(
     private val oldList: List<CityDataEntity>,
-    private val newList: List<CityDataEntity>,
+    private val newList: List<CityDataEntity>
 ) : DiffUtil.Callback() {
     override fun getOldListSize(): Int = oldList.size
 
@@ -25,9 +25,14 @@ class CityDiffCallBack(
 
 }
 
-class CityAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+interface ActionListener {
+    fun selectCity(city: CityDataEntity)
+}
 
-    var cities = emptyList<CityDataEntity>()
+class CityAdapter(
+    private val actionListener: ActionListener
+) : RecyclerView.Adapter<CityAdapter.CityViewHolder>(), View.OnClickListener {
+    var cities: List<CityDataEntity> = emptyList()
         set(newValue) {
             val diffCallBack = CityDiffCallBack(field, newValue)
             val diffResult = DiffUtil.calculateDiff(diffCallBack)
@@ -36,36 +41,41 @@ class CityAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
 
     class CityViewHolder(val binding: ItemCityBinding) : RecyclerView.ViewHolder(binding.root)
-    class LetterGroupViewHolder(val binding: ItemLetterGroupBinding) :
-        RecyclerView.ViewHolder(binding.root)
 
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CityViewHolder {
         val inflater = LayoutInflater.from(parent.context)
+        val binding = ItemCityBinding.inflate(inflater, parent, false)
 
-        return when (viewType) {
-            VIEW_TYPE_CITY -> {
-                val binding = ItemCityBinding.inflate(inflater, parent, false)
-                CityViewHolder(binding)
-            }
+        binding.nameCity.setOnClickListener(this)
 
-            else -> {
-                val binding = ItemLetterGroupBinding.inflate(inflater, parent, false)
-                LetterGroupViewHolder(binding)
-            }
+        return CityViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: CityViewHolder, position: Int) {
+        val currentCity = cities[position]
+        val currentGroupName = currentCity.city[0].toString()
+        val isGroupChanged =
+            position != 0 && cities[position - 1].city.first() != currentCity.city.first()
+
+
+        with(holder.binding) {
+            nameCity.tag = currentCity
+            nameCity.text = currentCity.city
+            nameGroup.text = currentGroupName
+            nameGroup.visibility =
+                if (isGroupChanged) View.VISIBLE else View.INVISIBLE
         }
+
+
     }
 
-    override fun getItemCount(): Int {
-        TODO("Not yet implemented")
+    override fun getItemCount(): Int = cities.size
+
+
+    override fun onClick(v: View) {
+        val city = v.tag as CityDataEntity
+
+        actionListener.selectCity(city)
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        TODO("Not yet implemented")
-    }
-
-    companion object {
-        const val VIEW_TYPE_LETTER = 0
-        const val VIEW_TYPE_CITY = 1
-    }
 }

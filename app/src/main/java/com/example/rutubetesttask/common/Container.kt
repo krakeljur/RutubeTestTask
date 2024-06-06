@@ -1,10 +1,8 @@
-package com.example.rutubetesttask.base
+package com.example.rutubetesttask.common
 
 import kotlinx.coroutines.runBlocking
 
-/**
- * Class - wrapper for correct work with async result
- */
+
 sealed class Container<out T> {
 
     fun <R> map(mapper: ((T) -> R)? = null): Container<R> {

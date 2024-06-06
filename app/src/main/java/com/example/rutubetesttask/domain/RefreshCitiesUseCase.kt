@@ -6,7 +6,7 @@ import javax.inject.Inject
 class RefreshCitiesUseCase @Inject constructor(
     private val citiesRepository: CitiesRepository
 ) {
-    suspend fun refreshCities() {
-        citiesRepository.refreshCities()
+    suspend fun refreshCities(query: String) {
+        citiesRepository.refreshCities(query)
     }
 }

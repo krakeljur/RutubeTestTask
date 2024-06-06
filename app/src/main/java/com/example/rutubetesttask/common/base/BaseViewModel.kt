@@ -1,4 +1,4 @@
-package com.example.rutubetesttask.base
+package com.example.rutubetesttask.common.base
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

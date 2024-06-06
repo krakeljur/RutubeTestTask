@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <style name="MySearchView" parent="Widget.AppCompat.SearchView">
+        <item name="queryHint">@string/search</item>
+        <item name="iconifiedByDefault">false</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textColorHint">@color/gray</item>
+        <item name="android:fontFamily">@font/roboto</item>
+    </style>
+
+
+</resources>
