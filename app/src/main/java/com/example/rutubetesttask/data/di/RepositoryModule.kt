@@ -2,6 +2,7 @@ package com.example.rutubetesttask.data.di
 
 import com.example.rutubetesttask.data.RepositoryImpl
 import com.example.rutubetesttask.domain.repositories.CitiesRepository
+import com.example.rutubetesttask.domain.repositories.ForecastRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -16,7 +17,11 @@ interface RepositoryModule {
 
     @Binds
     @Singleton
-    fun bindRepository(repository: RepositoryImpl) : CitiesRepository
+    fun bindCatalogRepository(repository: RepositoryImpl) : CitiesRepository
+
+    @Binds
+    @Singleton
+    fun bindForecastRepository(repository: RepositoryImpl) : ForecastRepository
 
 
 

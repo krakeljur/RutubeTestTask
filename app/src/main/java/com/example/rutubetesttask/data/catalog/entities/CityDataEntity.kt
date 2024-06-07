@@ -1,4 +1,4 @@
-package com.example.rutubetesttask.data.catalog.entity
+package com.example.rutubetesttask.data.catalog.entities
 
 data class CityDataEntity(
     val id: String,

@@ -1,6 +1,8 @@
 package com.example.rutubetesttask.data.di
 
+import com.example.rutubetesttask.common.Const
 import com.example.rutubetesttask.data.catalog.CatalogApi
+import com.example.rutubetesttask.data.forecast.ForecastApi
 import com.example.rutubetesttask.data.retrofit.NetworkErrorInterceptor
 import com.squareup.moshi.Moshi
 import dagger.Module
@@ -20,8 +22,21 @@ class NetworkModule {
     @Singleton
     @Provides
     @Named("CatalogRetrofit")
-    fun provideRetrofit(): Retrofit = Retrofit.Builder()
-        .baseUrl("https://gist.githubusercontent.com/")
+    fun provideCatalogRetrofit(): Retrofit = Retrofit.Builder()
+        .baseUrl(Const.BASE_URL_CITIES)
+        .client(
+            OkHttpClient().newBuilder()
+                .addInterceptor(NetworkErrorInterceptor())
+                .build()
+        )
+        .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().build()))
+        .build()
+
+    @Singleton
+    @Provides
+    @Named("ForecastRetrofit")
+    fun provideForecastRetrofit(): Retrofit = Retrofit.Builder()
+        .baseUrl(Const.BASE_URL_FORECAST)
         .client(
             OkHttpClient().newBuilder()
                 .addInterceptor(NetworkErrorInterceptor())
@@ -33,7 +48,13 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideCatalogApi(@Named("CatalogRetrofit") retrofit: Retrofit) : CatalogApi = retrofit.create(CatalogApi::class.java)
+    fun provideCatalogApi(@Named("CatalogRetrofit") retrofit: Retrofit): CatalogApi =
+        retrofit.create(CatalogApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideForecastApi(@Named("ForecastRetrofit") retrofit: Retrofit): ForecastApi =
+        retrofit.create(ForecastApi::class.java)
 
 
 }

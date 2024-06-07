@@ -34,7 +34,6 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_medium"
             android:gravity="center"
-            android:lineHeight="20dp"
             android:text="@string/error"
             android:textAlignment="center"
             android:textColor="@color/black"
@@ -48,7 +47,6 @@
             android:layout_width="wrap_content"
             android:fontFamily="@font/roboto_medium"
             android:textSize="14sp"
-            android:lineHeight="20dp"
             android:text="@string/update" />
 
     </LinearLayout>

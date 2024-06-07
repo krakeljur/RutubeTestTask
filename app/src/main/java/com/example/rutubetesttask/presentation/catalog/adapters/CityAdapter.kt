@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.rutubetesttask.data.catalog.entity.CityDataEntity
+import com.example.rutubetesttask.data.catalog.entities.CityDataEntity
 import com.example.rutubetesttask.databinding.ItemCityBinding
 
 
@@ -20,8 +20,19 @@ class CityDiffCallBack(
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
         oldList[oldItemPosition].id == newList[newItemPosition].id
 
-    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-        oldList[oldItemPosition] == newList[newItemPosition]
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        val isHeader =
+            (newItemPosition != 0 && (newList[newItemPosition].city.first() != newList[newItemPosition-1].city.first()))
+                    || newItemPosition == 0
+        val isExHeader =
+            (oldItemPosition != 0 && (oldList[oldItemPosition].city.first() != oldList[oldItemPosition-1].city.first()))
+                    || oldItemPosition == 0
+
+        val isChangedStatus = isExHeader != isHeader
+
+        return (oldList[oldItemPosition] == newList[newItemPosition]) && (!isChangedStatus)
+    }
+
 
 }
 
@@ -64,6 +75,7 @@ class CityAdapter(
             nameGroup.text = currentGroupName
             nameGroup.visibility =
                 if (isGroupChanged) View.VISIBLE else View.INVISIBLE
+            nameGroup.alpha = 1f
         }
 
 

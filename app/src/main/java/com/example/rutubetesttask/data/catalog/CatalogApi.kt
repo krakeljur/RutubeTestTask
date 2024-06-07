@@ -1,6 +1,6 @@
 package com.example.rutubetesttask.data.catalog
 
-import com.example.rutubetesttask.data.catalog.entity.CityDataEntity
+import com.example.rutubetesttask.data.catalog.entities.CityDataEntity
 import retrofit2.http.GET
 
 interface CatalogApi {
