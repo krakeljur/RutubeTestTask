@@ -3,6 +3,7 @@ package com.example.rutubetesttask.presentation.catalog
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -17,15 +18,14 @@ import com.example.rutubetesttask.databinding.FragmentCatalogBinding
 import com.example.rutubetesttask.presentation.catalog.adapters.ActionListener
 import com.example.rutubetesttask.presentation.catalog.adapters.CityAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 @AndroidEntryPoint
 class CatalogFragment : BaseFragment(R.layout.fragment_catalog) {
 
     private val viewModel by viewModels<CatalogViewModel>()
     private lateinit var binding: FragmentCatalogBinding
-    private var currentGroupNameFlow = MutableStateFlow("")
 
     private val cityAdapter = CityAdapter(object : ActionListener {
 
@@ -47,37 +47,77 @@ class CatalogFragment : BaseFragment(R.layout.fragment_catalog) {
     }
 
     private fun setupListeners() {
+
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
 
-                val firstVisiblePosition =
-                    (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                val firstVisibleView = recyclerView.getChildAt(0)
+                val secondVisibleView = recyclerView.getChildAt(1)
 
-                if (firstVisiblePosition != RecyclerView.NO_POSITION) {
-                    val firstVisibleViewHolder =
-                        recyclerView.findViewHolderForLayoutPosition(firstVisiblePosition) as CityAdapter.CityViewHolder
+                val firstRowIndex = firstVisibleView.findViewById<TextView>(R.id.nameGroup)
+                val secondRowIndex = secondVisibleView.findViewById<TextView>(R.id.nameGroup)
 
-                    currentGroupNameFlow.value =
-                        firstVisibleViewHolder.binding.nameGroup.text.toString()
+                val isHeader = firstRowIndex.text.toString() != secondRowIndex.text.toString()
 
+                val visibleRange = recyclerView.childCount
+                val actual = recyclerView.getChildAdapterPosition(firstVisibleView)
+                val next = actual + 1
+                val last = actual + visibleRange
+
+
+                binding.stickyNameGroup.text = firstRowIndex.text
+                binding.stickyNameGroup.visibility = View.VISIBLE
+
+
+                if (dy > 0) {
+                    if (next <= last) {
+                        if (isHeader) {
+                            binding.stickyNameGroup.visibility = View.INVISIBLE
+                            firstRowIndex.visibility = TextView.VISIBLE
+                            firstRowIndex.alpha =
+                                1 - (abs(firstVisibleView.y) / firstRowIndex.height)
+                            secondRowIndex.visibility = TextView.VISIBLE
+                        } else {
+                            firstRowIndex.visibility = TextView.INVISIBLE
+                            binding.stickyNameGroup.visibility = View.VISIBLE
+                        }
+                    }
+                } else {
+                    if (next <= last) {
+                        firstRowIndex.visibility = TextView.INVISIBLE
+
+                        if (isHeader) {
+                            binding.stickyNameGroup.visibility = View.INVISIBLE
+                            firstRowIndex.visibility = TextView.VISIBLE
+                            firstRowIndex.alpha = 1 - (abs(firstVisibleView.y) / firstRowIndex.height)
+                            secondRowIndex.visibility = TextView.VISIBLE
+                        } else {
+                            secondRowIndex.visibility = TextView.INVISIBLE
+                        }
+                    }
                 }
+
+                if (binding.stickyNameGroup.visibility == View.VISIBLE)
+                    firstRowIndex.visibility = TextView.INVISIBLE
             }
         })
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                viewModel.refreshCities(query ?: "")
-                return true
-            }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText.isNullOrBlank())
-                    viewModel.refreshCities()
+        binding.searchView.setOnQueryTextListener(
+            object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    viewModel.refreshCities(query ?: "")
+                    return true
+                }
 
-                return true
-            }
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    if (newText.isNullOrBlank())
+                        viewModel.refreshCities()
 
-        })
+                    return true
+                }
+
+            })
     }
 
 
@@ -95,13 +135,6 @@ class CatalogFragment : BaseFragment(R.layout.fragment_catalog) {
                         cityAdapter.cities = it.cities
                         binding.recyclerView.scrollToPosition(0)
                     }
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                currentGroupNameFlow.collect {
-                    binding.stickyNameGroup.text = it
                 }
             }
         }

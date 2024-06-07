@@ -55,7 +55,7 @@ class CityAdapter(
         val currentCity = cities[position]
         val currentGroupName = currentCity.city[0].toString()
         val isGroupChanged =
-            position != 0 && cities[position - 1].city.first() != currentCity.city.first()
+            (position != 0 && cities[position - 1].city.first() != currentCity.city.first()) || position == 0
 
 
         with(holder.binding) {
